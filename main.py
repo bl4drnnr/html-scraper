@@ -18,7 +18,8 @@ def main():
 
     options = {
         'params': [],
-        'cookie': []
+        'cookies': {},
+        'headers': {}
     }
 
     url = input('First of all, provide me with url of page to scrap: ')
@@ -48,7 +49,7 @@ def main():
 
     print()
 
-    anyCookie = input('Wanna send with some cookie? (for example, if access to page is restricted by authentication) [Y/N]:')
+    anyCookie = input('Wanna send with some cookie? (for example, if access to page is restricted by authentication) [Y/N]: ')
     if anyCookie == 'Y' or anyCookie == 'y':
         options['quantityOfCookies'] = input('What about quantity of cookies? (Integer number only): ')
         print()
@@ -58,6 +59,7 @@ def main():
         except (Exception,):
             print('Nah... Doe\'s seem to be number...')
 
+        cookies = []
         print('Provide cookie in next format - key=value')
         for i in range(0, int(options['quantityOfCookies'])):
             providedCookie = input('Key and value of cookie: ')
@@ -66,7 +68,17 @@ def main():
                 print('Wrong cookie format!')
                 exit()
 
-            options['cookie'].append(providedCookie)
+            cookies.append(providedCookie)
+
+        if len(cookies) > 0:
+            cookieObject = {}
+
+            for cookie in cookies:
+                cookieObject[cookie.split('=')[0]] = cookie.split('=')[1]
+
+            options['cookies'] = cookieObject
+
+    print()
 
     print('And the last thing - is tag to extract. What you should do, is to inspect the page and provide the tag.')
     print('Here is couple of examples how format should look like:')
@@ -79,14 +91,19 @@ def main():
     print()
 
     tagToExtract = input('So, what about tag to extract?: ')
+    print()
 
-    page = requests.get(url, cookies=options['cookie'], headers=options['headers'])
+    print('And... That\'s it! Here we go!')
+
+    page = requests.get(url, cookies=options['cookies'], headers=options['headers'])
     tree = html.fromstring(page.content)
 
     try:
         content = tree.xpath('//{}/text()'.format(tagToExtract))
     except Exception as e:
         raise Exception(e)
+
+    print(content)
 
 
 if __name__ == '__main__':
