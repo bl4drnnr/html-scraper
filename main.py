@@ -68,6 +68,26 @@ def main():
 
             options['cookie'].append(providedCookie)
 
+    print('And the last thing - is tag to extract. What you should do, is to inspect the page and provide the tag.')
+    print('Here is couple of examples how format should look like:')
+
+    print('--------------------------')
+    print('Examples:')
+    print('div[@title="buyer-name"]')
+    print('span[@class="item-price"]')
+    print('--------------------------')
+    print()
+
+    tagToExtract = input('So, what about tag to extract?: ')
+
+    page = requests.get(url, cookies=options['cookie'], headers=options['headers'])
+    tree = html.fromstring(page.content)
+
+    try:
+        content = tree.xpath('//{}/text()'.format(tagToExtract))
+    except Exception as e:
+        raise Exception(e)
+
 
 if __name__ == '__main__':
     main()
