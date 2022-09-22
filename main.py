@@ -17,14 +17,15 @@ def main():
     print()
 
     options = {
-        'params': []
+        'params': [],
+        'cookie': []
     }
 
     url = input('First of all, provide me with url of page to scrap: ')
     print()
     print('Okay, here we go with options!')
 
-    anyParams = input('Are there any url params you want to provide (if you haven\'t done it in URL) [Y/N]: ')
+    anyParams = input('Are there any URL params you want to provide (if you haven\'t done it in URL yet) [Y/N]: ')
 
     if anyParams == 'Y' or anyParams == 'y':
         options['quantityOfParams'] = input('What about quantity of params? (Integer number only): ')
@@ -35,7 +36,7 @@ def main():
         except (Exception,):
             print('Nah... Doe\'s seem to be number...')
 
-        print('Now, provide URL params in this format - key=value.')
+        print('Now, provide URL params in the next format - key=value.')
         for i in range(0, int(options['quantityOfParams'])):
             providedParam = input('Key and value of URL param: ')
 
@@ -45,7 +46,27 @@ def main():
 
             options['params'].append(providedParam)
 
-    print(options)
+    print()
+
+    anyCookie = input('Wanna send with some cookie? (for example, if access to page is restricted by authentication) [Y/N]:')
+    if anyCookie == 'Y' or anyCookie == 'y':
+        options['quantityOfCookies'] = input('What about quantity of cookies? (Integer number only): ')
+        print()
+
+        try:
+            int(options['quantityOfCookies'])
+        except (Exception,):
+            print('Nah... Doe\'s seem to be number...')
+
+        print('Provide cookie in next format - key=value')
+        for i in range(0, int(options['quantityOfCookies'])):
+            providedCookie = input('Key and value of cookie: ')
+
+            if '=' not in providedCookie or providedCookie[0] == '=' or providedCookie[-1] == '':
+                print('Wrong cookie format!')
+                exit()
+
+            options['cookie'].append(providedCookie)
 
 
 if __name__ == '__main__':
