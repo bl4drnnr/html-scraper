@@ -23,6 +23,7 @@ def main():
     }
 
     url = input('First of all, provide me with url of page to scrap: ')
+    options['url'] = url
     print()
     print('Okay, here we go with options!')
 
@@ -47,9 +48,20 @@ def main():
 
             options['params'].append(providedParam)
 
-    print()
+        if url[-1] == '/':
+            url = url[:-1]
 
-    anyCookie = input('Wanna send with some cookie? (for example, if access to page is restricted by authentication) [Y/N]: ')
+        for param, i in options['params']:
+            if i == 0:
+                url += '?{}={}'.format(param.split('=')[0], param.split('=')[1])
+            else:
+                url += '&{}={}'.format(param.split('=')[0], param.split('=')[1])
+
+        options['url'] = url
+        print()
+
+    anyCookie = input(
+        'Wanna send with some cookie? (for example, if access to page is restricted by authentication) [Y/N]: ')
     if anyCookie == 'Y' or anyCookie == 'y':
         quantityOfCookies = input('What about quantity of cookies? (Integer number only): ')
         print()
@@ -77,8 +89,7 @@ def main():
                 cookieObject[cookie.split('=')[0]] = cookie.split('=')[1]
 
             options['cookies'] = cookieObject
-
-    print()
+        print()
 
     anyHeaders = input('Wanna set headers? (for example, if access to page is restricted by authentication) [Y/N]: ')
     if anyHeaders == 'Y' or anyHeaders == 'y':
@@ -108,8 +119,7 @@ def main():
                 headerObject[header.split('=')[0]] = header.split('=')[1]
 
             options['headers'] = headerObject
-
-    print()
+        print()
 
     print('And the last thing - is tag to extract. What you should do, is to inspect the page and provide the tag.')
     print('Here is couple of examples how format should look like:')
@@ -126,10 +136,10 @@ def main():
 
     print('And... That\'s it! Here we go!')
 
-    page = requests.get(url, cookies=options['cookies'], headers=options['headers'])
-    tree = html.fromstring(page.content)
-
     try:
+        print('Sending request to {}'.format(options['url']))
+        page = requests.get(url, cookies=options['cookies'], headers=options['headers'])
+        tree = html.fromstring(page.content)
         content = tree.xpath('//{}/text()'.format(tagToExtract))
     except Exception as e:
         raise Exception(e)
@@ -139,3 +149,8 @@ def main():
 
 if __name__ == '__main__':
     main()
+
+# Todo - Ask user for pagination
+# Todo - Ask user for write result to file
+# Todo - Ask for strip result content
+# Todo - Format text
