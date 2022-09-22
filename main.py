@@ -29,16 +29,16 @@ def main():
     anyParams = input('Are there any URL params you want to provide (if you haven\'t done it in URL yet) [Y/N]: ')
 
     if anyParams == 'Y' or anyParams == 'y':
-        options['quantityOfParams'] = input('What about quantity of params? (Integer number only): ')
+        quantityOfParams = input('What about quantity of params? (Integer number only): ')
         print()
 
         try:
-            int(options['quantityOfParams'])
+            int(quantityOfParams)
         except (Exception,):
             print('Nah... Doe\'s seem to be number...')
 
         print('Now, provide URL params in the next format - key=value.')
-        for i in range(0, int(options['quantityOfParams'])):
+        for i in range(0, int(quantityOfParams)):
             providedParam = input('Key and value of URL param: ')
 
             if '=' not in providedParam or providedParam[0] == '=' or providedParam[-1] == '':
@@ -51,17 +51,17 @@ def main():
 
     anyCookie = input('Wanna send with some cookie? (for example, if access to page is restricted by authentication) [Y/N]: ')
     if anyCookie == 'Y' or anyCookie == 'y':
-        options['quantityOfCookies'] = input('What about quantity of cookies? (Integer number only): ')
+        quantityOfCookies = input('What about quantity of cookies? (Integer number only): ')
         print()
 
         try:
-            int(options['quantityOfCookies'])
+            int(quantityOfCookies)
         except (Exception,):
             print('Nah... Doe\'s seem to be number...')
 
         cookies = []
         print('Provide cookie in next format - key=value')
-        for i in range(0, int(options['quantityOfCookies'])):
+        for i in range(0, int(quantityOfCookies)):
             providedCookie = input('Key and value of cookie: ')
 
             if '=' not in providedCookie or providedCookie[0] == '=' or providedCookie[-1] == '':
@@ -77,6 +77,37 @@ def main():
                 cookieObject[cookie.split('=')[0]] = cookie.split('=')[1]
 
             options['cookies'] = cookieObject
+
+    print()
+
+    anyHeaders = input('Wanna set headers? (for example, if access to page is restricted by authentication) [Y/N]: ')
+    if anyHeaders == 'Y' or anyHeaders == 'y':
+        quantityOfHeaders = input('What about quantity of headers? (Integer number only): ')
+        print()
+
+        try:
+            int(quantityOfHeaders)
+        except (Exception,):
+            print('Nah... Doe\'s seem to be number...')
+
+        headers = []
+        print('Provide header in next format - key=value')
+        for i in range(0, int(quantityOfHeaders)):
+            providedHeader = input('Key and value of header: ')
+
+            if '=' not in providedHeader or providedHeader[0] == '=' or providedHeader[-1] == '':
+                print('Wrong cookie format!')
+                exit()
+
+            headers.append(providedHeader)
+
+        if len(headers) > 0:
+            headerObject = {}
+
+            for header in headers:
+                headerObject[header.split('=')[0]] = header.split('=')[1]
+
+            options['headers'] = headerObject
 
     print()
 
