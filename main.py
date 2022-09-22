@@ -3,6 +3,7 @@ import requests
 
 
 def main():
+    # Todo - Format text with styles
     print('****************************************************************************')
     print(' _   _ ________  ___ _          _____ _____ ______  ___  ______ ___________ ')
     print('| | | |_   _|  \/  || |        /  ___/  __ \| ___ \/ _ \ | ___ \  ___| ___ \\')
@@ -13,8 +14,7 @@ def main():
     print('****************************************************************************')
 
     print('Welcome, username, you here to scrap some HTML, right? Well, I knew that, so, let\'s start then!')
-    print('Let\'s start with simple configuration of what you exactly want.')
-    print()
+    print('Let\'s start with simple configuration of what you exactly want.\n')
 
     options = {
         'params': [],
@@ -24,10 +24,9 @@ def main():
 
     url = input('First of all, provide me with url of page to scrap: ')
     options['url'] = url
-    print()
-    print('Okay, here we go with options!')
+    print('\nOkay, here we go with options!')
 
-    anyParams = input('Are there any URL params you want to provide (if you haven\'t done it in URL yet) [Y/N]: ')
+    anyParams = input('\nAre there any URL params you want to provide (if you haven\'t done it in URL yet) [Y/N]: ')
 
     if anyParams == 'Y' or anyParams == 'y':
         quantityOfParams = input('What about quantity of params? (Integer number only): ')
@@ -58,10 +57,9 @@ def main():
                 url += '&{}={}'.format(param.split('=')[0], param.split('=')[1])
 
         options['url'] = url
-        print()
+        # Todo - Ask user for pagination
 
-    anyCookie = input(
-        'Wanna send with some cookie? (for example, if access to page is restricted by authentication) [Y/N]: ')
+    anyCookie = input('Wanna send with some cookie? (for example, if access to page is restricted by authentication) [Y/N]: ')
     if anyCookie == 'Y' or anyCookie == 'y':
         quantityOfCookies = input('What about quantity of cookies? (Integer number only): ')
         print()
@@ -89,7 +87,6 @@ def main():
                 cookieObject[cookie.split('=')[0]] = cookie.split('=')[1]
 
             options['cookies'] = cookieObject
-        print()
 
     anyHeaders = input('Wanna set headers? (for example, if access to page is restricted by authentication) [Y/N]: ')
     if anyHeaders == 'Y' or anyHeaders == 'y':
@@ -119,22 +116,18 @@ def main():
                 headerObject[header.split('=')[0]] = header.split('=')[1]
 
             options['headers'] = headerObject
-        print()
 
-    print('And the last thing - is tag to extract. What you should do, is to inspect the page and provide the tag.')
+    print('\nAnd the last thing - is tag to extract. What you should do, is to inspect the page and provide the tag.')
     print('Here is couple of examples how format should look like:')
-
     print('--------------------------')
     print('Examples:')
     print('div[@title="buyer-name"]')
     print('span[@class="item-price"]')
-    print('--------------------------')
-    print()
+    print('--------------------------\n')
 
     tagToExtract = input('So, what about tag to extract?: ')
-    print()
 
-    print('And... That\'s it! Here we go!')
+    print('\nAnd... That\'s it! Here we go!')
 
     try:
         print('Sending request to {}'.format(options['url']))
@@ -144,13 +137,22 @@ def main():
     except Exception as e:
         raise Exception(e)
 
-    print(content)
+    print('\nOf... Seems like everything went right. Let\'s end up with this.')
+
+    removeWhitespaces = input('Wanna remove all whitespace signs? [Y/N]: ')
+    if removeWhitespaces == 'Y' or removeWhitespaces == 'y':
+        for item in content:
+            item.strip()
+
+    saveToFile = input('Save result to file? [Y/N]: ')
+    if saveToFile == 'Y' or saveToFile == 'y':
+        pass
+        # Todo - Ask user for write result to file
+    else:
+        print('\n---------------------')
+        print('Result:', content)
+        print('---------------------\n')
 
 
 if __name__ == '__main__':
     main()
-
-# Todo - Ask user for pagination
-# Todo - Ask user for write result to file
-# Todo - Ask for strip result content
-# Todo - Format text
