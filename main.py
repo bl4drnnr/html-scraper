@@ -26,7 +26,17 @@ def print_format_request():
     print('--------------------------\n')
 
 
-def send_request():
+def single_request(url, cookies, headers, tag_to_extract):
+    try:
+        print('Sending request to {}'.format(url))
+        page = requests.get(url, cookies=cookies, headers=headers)
+        tree = html.fromstring(page.content)
+        return tree.xpath('//{}/text()'.format(tag_to_extract))
+    except Exception as e:
+        raise Exception(e)
+
+
+def request_with_pagination(url, cookies, headers, tag_to_extract):
     pass
 
 
@@ -63,7 +73,7 @@ def set_option(option, url=''):
         try:
             int(quantity)
         except (Exception,):
-            print('Nah... Doe\'s seem to be number...')
+            print('Nah... Doesn\'t seem to be number...')
 
         items = []
         print(texts['format'])
@@ -114,6 +124,7 @@ def main():
     headers = set_option('headers')
 
     is_pagination = input('Is there any pagination in case if you want to get data from a couple of pages, not only one? [Y/N]: ')
+    provided_pagination = ''
 
     if is_pagination == 'Y' or is_pagination == 'y':
         quantity_of_pages = input('Well, what about quantity of pages?: ')
@@ -121,9 +132,24 @@ def main():
         try:
             int(quantity_of_pages)
         except (Exception,):
-            print('Nah... Doe\'s seem to be number...')
+            print('Nah... Doesn\'t seem to be number...')
 
-        pagination_already_provided = input('Were pagination already provided in URL params? [Y/N]: ')
+        pagination_already_provided = input('Were pagination already provided in URL params or as route? [Y/N]: ')
+
+        if pagination_already_provided == 'Y' or pagination_already_provided == 'y':
+            url_param_or_route = input('Is it URL param (example: https://example.com?page=4) or part or route (example: https://example.com/4/)? (1/2): ')
+            if url_param_or_route == '1':
+                provided_pagination = input('Provide pagination\'s key and value in the same way (and same value) as you did it providing it as param: ')
+            elif url_param_or_route == '2':
+                provided_pagination = input('Set the place of this pagination (example for https://example.com/4/, you would provide /4/): ')
+                if len(provided_pagination) != 3 or provided_pagination[0] != '/' or provided_pagination[-1] != '/' or provided_pagination[1] not in '0123456789':
+                    print('Wrong format! Please, try again!')
+                    exit()
+            else:
+                print('Nah... Doesn\'t seem to be right answer...')
+                exit()
+        else:
+            provided_pagination = ''
 
     print_format_request()
 
@@ -131,13 +157,7 @@ def main():
 
     print('\nAnd... That\'s it! Here we go!')
 
-    try:
-        print('Sending request to {}'.format(updated_url))
-        page = requests.get(updated_url, cookies=cookies, headers=headers)
-        tree = html.fromstring(page.content)
-        content = tree.xpath('//{}/text()'.format(tag_to_extract))
-    except Exception as e:
-        raise Exception(e)
+    content = request_with_pagination(updated_url, cookies, headers, tag_to_extract) if is_pagination == 'Y' or is_pagination == 'y' else single_request(updated_url, cookies, headers, tag_to_extract)
 
     print('\nOf... Seems like everything went right. Let\'s end up with this.')
 
