@@ -1,7 +1,33 @@
-import os.path
-
 from lxml import html
 import requests
+
+
+def print_input():
+    print('****************************************************************************')
+    print(' _   _ ________  ___ _          _____ _____ ______  ___  ______ ___________ ')
+    print('| | | |_   _|  \/  || |        /  ___/  __ \| ___ \/ _ \ | ___ \  ___| ___ \\')
+    print('| |_| | | | | .  . || |  ______\ `--.| /  \/| |_/ / /_\ \| |_/ / |__ | |_/ /')
+    print('|  _  | | | | |\/| || | |______|`--. \ |    |    /|  _  ||  __/|  __||    / ')
+    print('| | | | | | | |  | || |____    /\__/ / \__/\| |\ \| | | || |   | |___| |\ \ ')
+    print('\_| |_/ \_/ \_|  |_/\_____/    \____/ \____/\_| \_\_| |_/\_|   \____/\_| \_|')
+    print('****************************************************************************')
+
+    print('Welcome, username, you here to scrap some HTML, right? Well, I knew that, so, let\'s start then!')
+    print('Let\'s start with simple configuration of what you exactly want.\n')
+
+
+def print_format_request():
+    print('\nAnd the last thing - is tag to extract. What you should do, is to inspect the page and provide the tag.')
+    print('Here is couple of examples how format should look like:')
+    print('--------------------------')
+    print('Examples:')
+    print('div[@title="buyer-name"]')
+    print('span[@class="item-price"]')
+    print('--------------------------\n')
+
+
+def send_request():
+    pass
 
 
 def set_option_type(option_type):
@@ -75,18 +101,6 @@ def set_option(option, url=''):
 
 def main():
     # Todo - Format text with styles
-    print('****************************************************************************')
-    print(' _   _ ________  ___ _          _____ _____ ______  ___  ______ ___________ ')
-    print('| | | |_   _|  \/  || |        /  ___/  __ \| ___ \/ _ \ | ___ \  ___| ___ \\')
-    print('| |_| | | | | .  . || |  ______\ `--.| /  \/| |_/ / /_\ \| |_/ / |__ | |_/ /')
-    print('|  _  | | | | |\/| || | |______|`--. \ |    |    /|  _  ||  __/|  __||    / ')
-    print('| | | | | | | |  | || |____    /\__/ / \__/\| |\ \| | | || |   | |___| |\ \ ')
-    print('\_| |_/ \_/ \_|  |_/\_____/    \____/ \____/\_| \_\_| |_/\_|   \____/\_| \_|')
-    print('****************************************************************************')
-
-    print('Welcome, username, you here to scrap some HTML, right? Well, I knew that, so, let\'s start then!')
-    print('Let\'s start with simple configuration of what you exactly want.\n')
-
     url = input('First of all, provide me with url of page to scrap: ')
 
     if url[0:7] != 'http://' and url[0:8] != 'https://':
@@ -95,19 +109,23 @@ def main():
 
     print('\nOkay, here we go with options!')
 
-    # Todo - Ask user for pagination
-
     updated_url = set_option('params', url)
     cookies = set_option('cookies')
     headers = set_option('headers')
 
-    print('\nAnd the last thing - is tag to extract. What you should do, is to inspect the page and provide the tag.')
-    print('Here is couple of examples how format should look like:')
-    print('--------------------------')
-    print('Examples:')
-    print('div[@title="buyer-name"]')
-    print('span[@class="item-price"]')
-    print('--------------------------\n')
+    is_pagination = input('Is there any pagination in case if you want to get data from a couple of pages, not only one? [Y/N]: ')
+
+    if is_pagination == 'Y' or is_pagination == 'y':
+        quantity_of_pages = input('Well, what about quantity of pages?: ')
+
+        try:
+            int(quantity_of_pages)
+        except (Exception,):
+            print('Nah... Doe\'s seem to be number...')
+
+        pagination_already_provided = input('Were pagination already provided in URL params? [Y/N]: ')
+
+    print_format_request()
 
     tag_to_extract = input('So, what about tag to extract?: ')
 
