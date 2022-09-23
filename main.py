@@ -1,3 +1,5 @@
+import os.path
+
 from lxml import html
 import requests
 
@@ -22,7 +24,7 @@ def set_option_type(option_type):
     }[option_type]
 
 
-def set_option(option, url = ''):
+def set_option(option, url=''):
     values = {}
     texts = set_option_type(option)
     set_option_choose = input(texts['set'])
@@ -87,8 +89,8 @@ def main():
 
     url = input('First of all, provide me with url of page to scrap: ')
 
-    if url[0:6] != 'http://' or url[0:7] != 'https://':
-        print('URL must start with http:// or https://!')
+    if url[0:7] != 'http://' and url[0:8] != 'https://':
+        print('URL must start with http:// or https:// !')
         exit()
 
     print('\nOkay, here we go with options!')
@@ -96,7 +98,6 @@ def main():
     # Todo - Ask user for pagination
 
     updated_url = set_option('params', url)
-    print('updated_url', updated_url)
     cookies = set_option('cookies')
     headers = set_option('headers')
 
@@ -108,7 +109,7 @@ def main():
     print('span[@class="item-price"]')
     print('--------------------------\n')
 
-    tagToExtract = input('So, what about tag to extract?: ')
+    tag_to_extract = input('So, what about tag to extract?: ')
 
     print('\nAnd... That\'s it! Here we go!')
 
@@ -116,21 +117,36 @@ def main():
         print('Sending request to {}'.format(updated_url))
         page = requests.get(updated_url, cookies=cookies, headers=headers)
         tree = html.fromstring(page.content)
-        content = tree.xpath('//{}/text()'.format(tagToExtract))
+        content = tree.xpath('//{}/text()'.format(tag_to_extract))
     except Exception as e:
         raise Exception(e)
 
     print('\nOf... Seems like everything went right. Let\'s end up with this.')
 
-    removeWhitespaces = input('Wanna remove all whitespace signs? [Y/N]: ')
-    if removeWhitespaces == 'Y' or removeWhitespaces == 'y':
+    remove_whitespaces = input('Wanna remove all whitespace signs? [Y/N]: ')
+    if remove_whitespaces == 'Y' or remove_whitespaces == 'y':
+        updated_content = []
         for item in content:
-            item.strip()
+            updated_content.append(item.strip())
+        content = updated_content
 
-    saveToFile = input('Save result to file? [Y/N]: ')
-    if saveToFile == 'Y' or saveToFile == 'y':
-        pass
-        # Todo - Ask user for write result to file
+    save_to_file = input('Save result to file? [Y/N]: ')
+    if save_to_file == 'Y' or save_to_file == 'y':
+        try:
+            file_name = input('Please, provide file name: ')
+            final_content = ''
+
+            f = open(f'{file_name}.txt', 'w')
+
+            for item in content:
+                final_content += f'{item},'
+
+            f.write(final_content)
+            f.close()
+
+            print('And... Done!')
+        except (Exception,):
+            print('Oops... Something went wrong! Please, check file name.')
     else:
         print('\n---------------------')
         print('Result:', content)
