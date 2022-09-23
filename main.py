@@ -2,6 +2,75 @@ from lxml import html
 import requests
 
 
+def set_option_type(option_type):
+    return {
+        'headers': {
+            'set': 'Wanna set headers? (for example, if access to page is restricted by authentication) [Y/N]: ',
+            'quantity': 'What about quantity of headers? (Integer number only): ',
+            'format': 'Provide header in next format - key=value'
+        },
+        'cookies': {
+            'set': 'Wanna send with some cookie? (for example, if access to page is restricted by authentication) [Y/N]: ',
+            'quantity': 'What about quantity of cookies? (Integer number only): ',
+            'format': 'Provide cookie in next format - key=value'
+        },
+        'params': {
+            'set': '\nAre there any URL params you want to provide (if you haven\'t done it in URL yet) [Y/N]: ',
+            'quantity': 'What about quantity of params? (Integer number only): ',
+            'format': 'Now, provide URL params in the next format - key=value.'
+        }
+    }[option_type]
+
+
+def set_option(option, url = ''):
+    values = {}
+    texts = set_option_type(option)
+    set_option_choose = input(texts['set'])
+
+    if set_option_choose == 'Y' or set_option_choose == 'y':
+        quantity_option = texts['quantity']
+        quantity = input(quantity_option)
+        print()
+
+        try:
+            int(quantity)
+        except (Exception,):
+            print('Nah... Doe\'s seem to be number...')
+
+        items = []
+        print(texts['format'])
+        for i in range(0, int(quantity)):
+            provided_value = input('Key and value: ')
+
+            if '=' not in provided_value or provided_value[0] == '=' or provided_value[-1] == '':
+                print('Wrong')
+                exit()
+
+            items.append(provided_value)
+
+        if option != 'params':
+            if len(items) > 0:
+
+                for value in items:
+                    values[value.split('=')[0]] = value.split('=')[1]
+        else:
+            if url[-1] == '/':
+                url = url[:-1]
+
+            for i, param in enumerate(items):
+                if i == 0:
+                    url += '?{}={}'.format(param.split('=')[0], param.split('=')[1])
+                else:
+                    url += '&{}={}'.format(param.split('=')[0], param.split('=')[1])
+
+            return url
+
+    if option == 'params':
+        return url
+    else:
+        return values
+
+
 def main():
     # Todo - Format text with styles
     print('****************************************************************************')
@@ -16,106 +85,20 @@ def main():
     print('Welcome, username, you here to scrap some HTML, right? Well, I knew that, so, let\'s start then!')
     print('Let\'s start with simple configuration of what you exactly want.\n')
 
-    options = {
-        'params': [],
-        'cookies': {},
-        'headers': {}
-    }
-
     url = input('First of all, provide me with url of page to scrap: ')
-    options['url'] = url
+
+    if url[0:6] != 'http://' or url[0:7] != 'https://':
+        print('URL must start with http:// or https://!')
+        exit()
+
     print('\nOkay, here we go with options!')
 
-    anyParams = input('\nAre there any URL params you want to provide (if you haven\'t done it in URL yet) [Y/N]: ')
+    # Todo - Ask user for pagination
 
-    if anyParams == 'Y' or anyParams == 'y':
-        quantityOfParams = input('What about quantity of params? (Integer number only): ')
-        print()
-
-        try:
-            int(quantityOfParams)
-        except (Exception,):
-            print('Nah... Doe\'s seem to be number...')
-
-        print('Now, provide URL params in the next format - key=value.')
-        for i in range(0, int(quantityOfParams)):
-            providedParam = input('Key and value of URL param: ')
-
-            if '=' not in providedParam or providedParam[0] == '=' or providedParam[-1] == '':
-                print('Wrong param format!')
-                exit()
-
-            options['params'].append(providedParam)
-
-        if url[-1] == '/':
-            url = url[:-1]
-
-        for param, i in options['params']:
-            if i == 0:
-                url += '?{}={}'.format(param.split('=')[0], param.split('=')[1])
-            else:
-                url += '&{}={}'.format(param.split('=')[0], param.split('=')[1])
-
-        options['url'] = url
-        # Todo - Ask user for pagination
-
-    anyCookie = input('Wanna send with some cookie? (for example, if access to page is restricted by authentication) [Y/N]: ')
-    if anyCookie == 'Y' or anyCookie == 'y':
-        quantityOfCookies = input('What about quantity of cookies? (Integer number only): ')
-        print()
-
-        try:
-            int(quantityOfCookies)
-        except (Exception,):
-            print('Nah... Doe\'s seem to be number...')
-
-        cookies = []
-        print('Provide cookie in next format - key=value')
-        for i in range(0, int(quantityOfCookies)):
-            providedCookie = input('Key and value of cookie: ')
-
-            if '=' not in providedCookie or providedCookie[0] == '=' or providedCookie[-1] == '':
-                print('Wrong cookie format!')
-                exit()
-
-            cookies.append(providedCookie)
-
-        if len(cookies) > 0:
-            cookieObject = {}
-
-            for cookie in cookies:
-                cookieObject[cookie.split('=')[0]] = cookie.split('=')[1]
-
-            options['cookies'] = cookieObject
-
-    anyHeaders = input('Wanna set headers? (for example, if access to page is restricted by authentication) [Y/N]: ')
-    if anyHeaders == 'Y' or anyHeaders == 'y':
-        quantityOfHeaders = input('What about quantity of headers? (Integer number only): ')
-        print()
-
-        try:
-            int(quantityOfHeaders)
-        except (Exception,):
-            print('Nah... Doe\'s seem to be number...')
-
-        headers = []
-        print('Provide header in next format - key=value')
-        for i in range(0, int(quantityOfHeaders)):
-            providedHeader = input('Key and value of header: ')
-
-            if '=' not in providedHeader or providedHeader[0] == '=' or providedHeader[-1] == '':
-                print('Wrong cookie format!')
-                exit()
-
-            headers.append(providedHeader)
-
-        if len(headers) > 0:
-            headerObject = {}
-
-            for header in headers:
-                headerObject[header.split('=')[0]] = header.split('=')[1]
-
-            options['headers'] = headerObject
+    updated_url = set_option('params', url)
+    print('updated_url', updated_url)
+    cookies = set_option('cookies')
+    headers = set_option('headers')
 
     print('\nAnd the last thing - is tag to extract. What you should do, is to inspect the page and provide the tag.')
     print('Here is couple of examples how format should look like:')
@@ -130,8 +113,8 @@ def main():
     print('\nAnd... That\'s it! Here we go!')
 
     try:
-        print('Sending request to {}'.format(options['url']))
-        page = requests.get(url, cookies=options['cookies'], headers=options['headers'])
+        print('Sending request to {}'.format(updated_url))
+        page = requests.get(updated_url, cookies=cookies, headers=headers)
         tree = html.fromstring(page.content)
         content = tree.xpath('//{}/text()'.format(tagToExtract))
     except Exception as e:
