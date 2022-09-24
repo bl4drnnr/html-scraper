@@ -10,7 +10,7 @@ import prints
 
 def get_input_args():
     flags = sys.argv[1:]
-    short_flags = 'hou'
+    short_flags = 'ho:u:'
     long_flags = ['help', 'output=', 'url=']
 
     try:
