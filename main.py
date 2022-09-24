@@ -195,7 +195,7 @@ if __name__ == '__main__':
 
     flags = sys.argv[1:]
 
-    if len(flags) > 1:
+    if flags[0] != '-u' and len(flags) > 1:
         prints.only_one_flag_allowed()
 
     for arg in flags:
@@ -207,3 +207,8 @@ if __name__ == '__main__':
         prints.print_help()
     elif provided_flag == '-s' or provided_flag == '--start':
         main()
+    elif provided_flag[:2] == '-u' or provided_flag[:5] == '--url':
+        if provided_flag[:2] == '-u':
+            main(flags[1])
+        elif provided_flag[:5] == '--url':
+            main(provided_flag.split('=')[1])
