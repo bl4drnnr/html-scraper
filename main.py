@@ -130,9 +130,13 @@ def set_option(option, url=''):
         return values
 
 
-def main():
+def main(start_url=''):
     prints.print_input()
-    url = input('First of all, provide me with url of page to scrap: ')
+
+    if len(start_url) != 0:
+        url = input('First of all, provide me with url of page to scrap: ')
+    else:
+        url = start_url
 
     if url[0:7] != 'http://' and url[0:8] != 'https://':
         print('\nURL must start with http:// or https:// !')
@@ -186,14 +190,17 @@ def main():
 
 
 if __name__ == '__main__':
+    if len(sys.argv) == 0:
+        main()
+
     flags = sys.argv[1:]
+
+    if len(flags) > 1:
+        prints.only_one_flag_allowed()
 
     for arg in flags:
         if arg not in ALLOWED_FLAGS:
             prints.print_flags_error()
-
-    if len(flags) > 1:
-        prints.only_one_flag_allowed()
 
     provided_flag = flags[0]
     if provided_flag == '-h' or provided_flag == '--help':
