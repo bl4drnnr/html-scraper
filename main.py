@@ -1,46 +1,11 @@
 from lxml import html
+import prints
+import options
 import requests
 import sys
 
 
 ALLOWED_FLAGS = ['--help', '-h', '-u', '--url', '-s', '--start']
-
-
-def print_help():
-    print('Documentation.')
-    print('-h, --help\tPrint documentation manual.')
-    print('-u, --url\tPass URL of page of page to scrap. Example: -u https://example.com or --url=https://example.com')
-    print('-s, --start\tStart program in interactive mode.')
-
-
-def print_flags_error():
-    print('\nWrong flag!')
-    print('Please, check documentation (-h, --help) in order to check all available flags.')
-    exit()
-
-
-def print_input():
-    print('****************************************************************************')
-    print(' _   _ ________  ___ _          _____ _____ ______  ___  ______ ___________ ')
-    print('| | | |_   _|  \/  || |        /  ___/  __ \| ___ \/ _ \ | ___ \  ___| ___ \\')
-    print('| |_| | | | | .  . || |  ______\ `--.| /  \/| |_/ / /_\ \| |_/ / |__ | |_/ /')
-    print('|  _  | | | | |\/| || | |______|`--. \ |    |    /|  _  ||  __/|  __||    / ')
-    print('| | | | | | | |  | || |____    /\__/ / \__/\| |\ \| | | || |   | |___| |\ \ ')
-    print('\_| |_/ \_/ \_|  |_/\_____/    \____/ \____/\_| \_\_| |_/\_|   \____/\_| \_|')
-    print('****************************************************************************')
-
-    print('Welcome, username, you here to scrap some HTML, right? Well, I knew that, so, let\'s start then!')
-    print('Let\'s start with simple configuration of what you exactly want.\n')
-
-
-def print_format_request():
-    print('\nAnd the last thing - is tag to extract. What you should do, is to inspect the page and provide the tag.')
-    print('Here is couple of examples how format should look like:')
-    print('--------------------------')
-    print('Examples:')
-    print('div[@title="buyer-name"]')
-    print('span[@class="item-price"]')
-    print('--------------------------\n')
 
 
 def set_pagination(url):
@@ -116,29 +81,9 @@ def request_with_pagination(url, cookies, headers, tag_to_extract, pagination):
     return result
 
 
-def set_option_type(option_type):
-    return {
-        'headers': {
-            'set': 'Wanna set headers? (for example, if access to page is restricted by authentication) [Y/N]: ',
-            'quantity': '\nWhat about quantity of headers? (Integer number only): ',
-            'format': 'Provide header in next format - key=value'
-        },
-        'cookies': {
-            'set': 'Wanna send with some cookie? (for example, if access to page is restricted by authentication) [Y/N]: ',
-            'quantity': '\nWhat about quantity of cookies? (Integer number only): ',
-            'format': 'Provide cookie in next format - key=value'
-        },
-        'params': {
-            'set': 'Are there any URL params you want to provide (if you haven\'t done it in URL yet) [Y/N]: ',
-            'quantity': '\nWhat about quantity of params? (Integer number only): ',
-            'format': 'Now, provide URL params in the next format - key=value.'
-        }
-    }[option_type]
-
-
 def set_option(option, url=''):
     values = {}
-    texts = set_option_type(option)
+    texts = options.set_option_type(option)
     set_option_choose = input(texts['set'])
 
     if set_option_choose == 'Y' or set_option_choose == 'y':
@@ -186,7 +131,7 @@ def set_option(option, url=''):
 
 
 def main():
-    print_input()
+    prints.print_input()
     url = input('First of all, provide me with url of page to scrap: ')
 
     if url[0:7] != 'http://' and url[0:8] != 'https://':
@@ -200,7 +145,7 @@ def main():
     headers = set_option('headers')
     pagination = set_pagination(url)
 
-    print_format_request()
+    prints.print_format_request()
 
     tag_to_extract = input('So, what about tag to extract?: ')
 
@@ -241,4 +186,17 @@ def main():
 
 
 if __name__ == '__main__':
-    main()
+    flags = sys.argv[1:]
+
+    for arg in flags:
+        if arg not in ALLOWED_FLAGS:
+            prints.print_flags_error()
+
+    if len(flags) > 1:
+        prints.only_one_flag_allowed()
+
+    provided_flag = flags[0]
+    if provided_flag == '-h' or provided_flag == '--help':
+        prints.print_help()
+    elif provided_flag == '-s' or provided_flag == '--start':
+        main()
