@@ -10,8 +10,8 @@ import prints
 
 def get_input_args():
     flags = sys.argv[1:]
-    short_flags = 'hsou'
-    long_flags = ['help', 'start', 'output=', 'url=']
+    short_flags = 'hou'
+    long_flags = ['help', 'output=', 'url=']
 
     try:
         opts, args = getopt.getopt(flags, short_flags, long_flags)
@@ -25,8 +25,6 @@ def get_input_args():
                 output = a
             elif o in ('-u', '--url'):
                 start_url = a
-            elif o in ('-s', '--start'):
-                main()
             else:
                 prints.print_flags_error()
 

@@ -17,7 +17,6 @@ For data, that is placed on *pages* script allows to set pagination and extract 
 ```
 -h, --help      Print documentation manual.
 -u, --url       Pass URL of page of page to scrap. Example: -u https://example.com or --url=https://example.com
--s, --start     Start program in interactive mode.
 -o, --output    Write result in file.
 ```
 

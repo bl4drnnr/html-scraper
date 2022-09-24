@@ -24,9 +24,9 @@ def print_format_request():
 
 def print_help():
     print('Documentation.')
-    print('-h, --help\tPrint documentation manual.')
-    print('-u, --url\tPass URL of page of page to scrap. Example: -u https://example.com or --url=https://example.com')
-    print('-s, --start\tStart program in interactive mode.')
+    print('-h, --help\t\tPrint documentation manual.')
+    print('-u, --url\t\tPass URL of page of page to scrap. Example: -u https://example.com or --url=https://example.com')
+    print('-o, --output\t\tWrite result in file. Example: -u output.txt or --output=output.txt')
     exit()
 
 
