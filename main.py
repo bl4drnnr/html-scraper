@@ -1,11 +1,29 @@
-from lxml import html
-import prints
-import options
-import requests
+import getopt
 import sys
 
+import requests
+from lxml import html
+
+import options
+import prints
 
 ALLOWED_FLAGS = ['--help', '-h', '-u', '--url', '-s', '--start']
+
+
+def get_input_args():
+    try:
+        opts, args = getopt.getopt(sys.argv[1:], "ho:v", ["help", "output="])
+
+        output = ''
+        for o, a in opts:
+            if o in ("-h", "--help"):
+                prints.print_help()
+            elif o in ("-h", "--output"):
+                output = o
+            else:
+                prints.print_flags_error()
+    except getopt.GetoptError:
+        prints.print_flags_error()
 
 
 def set_pagination(url):
@@ -192,23 +210,5 @@ def main(start_url=''):
 if __name__ == '__main__':
     if len(sys.argv) == 0:
         main()
-
-    flags = sys.argv[1:]
-
-    if flags[0] != '-u' and len(flags) > 1:
-        prints.only_one_flag_allowed()
-
-    for arg in flags:
-        if arg not in ALLOWED_FLAGS:
-            prints.print_flags_error()
-
-    provided_flag = flags[0]
-    if provided_flag == '-h' or provided_flag == '--help':
-        prints.print_help()
-    elif provided_flag == '-s' or provided_flag == '--start':
-        main()
-    elif provided_flag[:2] == '-u' or provided_flag[:5] == '--url':
-        if provided_flag[:2] == '-u':
-            main(flags[1])
-        elif provided_flag[:5] == '--url':
-            main(provided_flag.split('=')[1])
+    else:
+        get_input_args()

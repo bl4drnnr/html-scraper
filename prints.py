@@ -33,7 +33,7 @@ def print_help():
 def print_flags_error():
     print('Wrong flag!')
     print('Please, check documentation (-h, --help) in order to check all available flags.')
-    exit()
+    exit(2)
 
 
 def only_one_flag_allowed():
