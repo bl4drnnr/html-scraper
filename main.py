@@ -32,7 +32,7 @@ def set_pagination(url):
     provided_pagination = ''
 
     if is_pagination == 'Y' or is_pagination == 'y':
-        quantity_of_pages = input('Well, what about quantity of pages?: ')
+        quantity_of_pages = input('\nWell, what about quantity of pages?: ')
 
         try:
             int(quantity_of_pages)
@@ -95,17 +95,17 @@ def set_option_type(option_type):
     return {
         'headers': {
             'set': 'Wanna set headers? (for example, if access to page is restricted by authentication) [Y/N]: ',
-            'quantity': 'What about quantity of headers? (Integer number only): ',
+            'quantity': '\nWhat about quantity of headers? (Integer number only): ',
             'format': 'Provide header in next format - key=value'
         },
         'cookies': {
             'set': 'Wanna send with some cookie? (for example, if access to page is restricted by authentication) [Y/N]: ',
-            'quantity': 'What about quantity of cookies? (Integer number only): ',
+            'quantity': '\nWhat about quantity of cookies? (Integer number only): ',
             'format': 'Provide cookie in next format - key=value'
         },
         'params': {
-            'set': '\nAre there any URL params you want to provide (if you haven\'t done it in URL yet) [Y/N]: ',
-            'quantity': 'What about quantity of params? (Integer number only): ',
+            'set': 'Are there any URL params you want to provide (if you haven\'t done it in URL yet) [Y/N]: ',
+            'quantity': '\nWhat about quantity of params? (Integer number only): ',
             'format': 'Now, provide URL params in the next format - key=value.'
         }
     }[option_type]
@@ -161,7 +161,7 @@ def set_option(option, url=''):
 
 
 def main():
-    # Todo - Format text with styles
+    print_input()
     url = input('First of all, provide me with url of page to scrap: ')
 
     if url[0:7] != 'http://' and url[0:8] != 'https://':
