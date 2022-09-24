@@ -3,6 +3,21 @@ import requests
 import sys
 
 
+ALLOWED_FLAGS = ['--help', '-h', '-u', '--url']
+
+
+def print_help():
+    print('Documentation.')
+    print('-h, --help\tPrint documentation manual.')
+    print('-u, --url\tPass URL of page of page to scrap. Example: -u https://example.com or --url=https://example.com')
+
+
+def print_flags_error():
+    print('\nWrong flag!')
+    print('Please, check documentation (-h, --help) in order to check all available flags.')
+    exit()
+
+
 def print_input():
     print('****************************************************************************')
     print(' _   _ ________  ___ _          _____ _____ ______  ___  ______ ___________ ')
