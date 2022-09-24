@@ -3,13 +3,14 @@ import requests
 import sys
 
 
-ALLOWED_FLAGS = ['--help', '-h', '-u', '--url']
+ALLOWED_FLAGS = ['--help', '-h', '-u', '--url', '-s', '--start']
 
 
 def print_help():
     print('Documentation.')
     print('-h, --help\tPrint documentation manual.')
     print('-u, --url\tPass URL of page of page to scrap. Example: -u https://example.com or --url=https://example.com')
+    print('-s, --start\tStart program in interactive mode.')
 
 
 def print_flags_error():
@@ -45,6 +46,7 @@ def print_format_request():
 def set_pagination(url):
     is_pagination = input('Is there any pagination in case if you want to get data from a couple of pages, not only one? [Y/N]: ')
     provided_pagination = ''
+    quantity_of_pages = 0
 
     if is_pagination == 'Y' or is_pagination == 'y':
         quantity_of_pages = input('\nWell, what about quantity of pages?: ')
@@ -76,7 +78,10 @@ def set_pagination(url):
             print('It could be URL param (example: https://example.com?page=4) or part or route (example: https://example.com/4/)')
             exit()
 
-    return provided_pagination
+    return {
+        'provided_pagination': provided_pagination,
+        'quantity_of_pages': int(quantity_of_pages)
+    }
 
 
 def single_request(url, cookies, headers, tag_to_extract):
@@ -90,20 +95,25 @@ def single_request(url, cookies, headers, tag_to_extract):
 
 
 def request_with_pagination(url, cookies, headers, tag_to_extract, pagination):
+    result = []
     try:
         print('Sending request to {}'.format(url))
-        if '=' in pagination:
-            pass
-        elif pagination[0] == '/':
-            pass
+        if '=' in pagination['provided_pagination']:
+            split_url = url.split(pagination['provided_pagination'])
+            for i in range(1, pagination['quantity_of_pages'] + 1):
+                updated_url = split_url[0] + pagination['provided_pagination'].split('=')[0] + '=' + str(i) + split_url[1]
+                page = requests.get(updated_url, cookies=cookies, headers=headers)
+                tree = html.fromstring(page.content)
+                tree_content = tree.xpath('//{}/text()'.format(tag_to_extract))
+
+                for item in tree_content:
+                    result.append(item)
         else:
-            print('\nSomething went wrong with pagination!')
-            exit()
-        page = requests.get(url, cookies=cookies, headers=headers)
-        tree = html.fromstring(page.content)
-        return tree.xpath('//{}/text()'.format(tag_to_extract))
+            pass
     except Exception as e:
         raise Exception(e)
+
+    return result
 
 
 def set_option_type(option_type):
