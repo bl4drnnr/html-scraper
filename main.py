@@ -97,19 +97,19 @@ def single_request(url, cookies, headers, tag_to_extract):
 def request_with_pagination(url, cookies, headers, tag_to_extract, pagination):
     result = []
     try:
-        print('Sending request to {}'.format(url))
-        if '=' in pagination['provided_pagination']:
-            split_url = url.split(pagination['provided_pagination'])
-            for i in range(1, pagination['quantity_of_pages'] + 1):
+        split_url = url.split(pagination['provided_pagination'])
+        for i in range(1, pagination['quantity_of_pages'] + 1):
+            if '=' in pagination['provided_pagination']:
                 updated_url = split_url[0] + pagination['provided_pagination'].split('=')[0] + '=' + str(i) + split_url[1]
-                page = requests.get(updated_url, cookies=cookies, headers=headers)
-                tree = html.fromstring(page.content)
-                tree_content = tree.xpath('//{}/text()'.format(tag_to_extract))
+            else:
+                updated_url = split_url[0] + f'/{str(i)}/' + split_url[1]
+            print('Sending request to {}'.format(updated_url))
+            page = requests.get(updated_url, cookies=cookies, headers=headers)
+            tree = html.fromstring(page.content)
+            tree_content = tree.xpath('//{}/text()'.format(tag_to_extract))
 
-                for item in tree_content:
-                    result.append(item)
-        else:
-            pass
+            for item in tree_content:
+                result.append(item)
     except Exception as e:
         raise Exception(e)
 
