@@ -1,5 +1,6 @@
 from lxml import html
 import requests
+import sys
 
 
 def print_input():
@@ -26,6 +27,43 @@ def print_format_request():
     print('--------------------------\n')
 
 
+def set_pagination(url):
+    is_pagination = input('Is there any pagination in case if you want to get data from a couple of pages, not only one? [Y/N]: ')
+    provided_pagination = ''
+
+    if is_pagination == 'Y' or is_pagination == 'y':
+        quantity_of_pages = input('Well, what about quantity of pages?: ')
+
+        try:
+            int(quantity_of_pages)
+        except (Exception,):
+            print('Nah... Doesn\'t seem to be number...')
+
+        pagination_already_provided = input('Were pagination already provided in URL params or as route? [Y/N]: ')
+
+        if pagination_already_provided == 'Y' or pagination_already_provided == 'y':
+            url_param_or_route = input('Is it URL param (example: https://example.com?page=4) or part or route (example: https://example.com/4/)? (1/2): ')
+            if url_param_or_route == '1':
+                provided_pagination = input('Provide pagination\'s key and value in the same way (and same value) as you did it providing it as param, for example - page=4: ')
+                if provided_pagination not in url:
+                    print('\nWell... Probably you provided something wrong...')
+                    exit()
+            elif url_param_or_route == '2':
+                provided_pagination = input('Set the place of this pagination (example for https://example.com/4/, you would provide /4/): ')
+                if len(provided_pagination) != 3 or provided_pagination[0] != '/' or provided_pagination[-1] != '/' or provided_pagination[1] not in '0123456789':
+                    print('\nWrong format! Please, try again!')
+                    exit()
+            else:
+                print('\nNah... Doesn\'t seem to be right answer...')
+                exit()
+        else:
+            print('\nWell, then you should provide it in URL route.')
+            print('It could be URL param (example: https://example.com?page=4) or part or route (example: https://example.com/4/)')
+            exit()
+
+    return provided_pagination
+
+
 def single_request(url, cookies, headers, tag_to_extract):
     try:
         print('Sending request to {}'.format(url))
@@ -36,8 +74,21 @@ def single_request(url, cookies, headers, tag_to_extract):
         raise Exception(e)
 
 
-def request_with_pagination(url, cookies, headers, tag_to_extract):
-    pass
+def request_with_pagination(url, cookies, headers, tag_to_extract, pagination):
+    try:
+        print('Sending request to {}'.format(url))
+        if '=' in pagination:
+            pass
+        elif pagination[0] == '/':
+            pass
+        else:
+            print('\nSomething went wrong with pagination!')
+            exit()
+        page = requests.get(url, cookies=cookies, headers=headers)
+        tree = html.fromstring(page.content)
+        return tree.xpath('//{}/text()'.format(tag_to_extract))
+    except Exception as e:
+        raise Exception(e)
 
 
 def set_option_type(option_type):
@@ -81,7 +132,7 @@ def set_option(option, url=''):
             provided_value = input('Key and value: ')
 
             if '=' not in provided_value or provided_value[0] == '=' or provided_value[-1] == '':
-                print('Wrong')
+                print('\nWrong')
                 exit()
 
             items.append(provided_value)
@@ -114,7 +165,7 @@ def main():
     url = input('First of all, provide me with url of page to scrap: ')
 
     if url[0:7] != 'http://' and url[0:8] != 'https://':
-        print('URL must start with http:// or https:// !')
+        print('\nURL must start with http:// or https:// !')
         exit()
 
     print('\nOkay, here we go with options!')
@@ -122,34 +173,7 @@ def main():
     updated_url = set_option('params', url)
     cookies = set_option('cookies')
     headers = set_option('headers')
-
-    is_pagination = input('Is there any pagination in case if you want to get data from a couple of pages, not only one? [Y/N]: ')
-    provided_pagination = ''
-
-    if is_pagination == 'Y' or is_pagination == 'y':
-        quantity_of_pages = input('Well, what about quantity of pages?: ')
-
-        try:
-            int(quantity_of_pages)
-        except (Exception,):
-            print('Nah... Doesn\'t seem to be number...')
-
-        pagination_already_provided = input('Were pagination already provided in URL params or as route? [Y/N]: ')
-
-        if pagination_already_provided == 'Y' or pagination_already_provided == 'y':
-            url_param_or_route = input('Is it URL param (example: https://example.com?page=4) or part or route (example: https://example.com/4/)? (1/2): ')
-            if url_param_or_route == '1':
-                provided_pagination = input('Provide pagination\'s key and value in the same way (and same value) as you did it providing it as param: ')
-            elif url_param_or_route == '2':
-                provided_pagination = input('Set the place of this pagination (example for https://example.com/4/, you would provide /4/): ')
-                if len(provided_pagination) != 3 or provided_pagination[0] != '/' or provided_pagination[-1] != '/' or provided_pagination[1] not in '0123456789':
-                    print('Wrong format! Please, try again!')
-                    exit()
-            else:
-                print('Nah... Doesn\'t seem to be right answer...')
-                exit()
-        else:
-            provided_pagination = ''
+    pagination = set_pagination(url)
 
     print_format_request()
 
@@ -157,7 +181,7 @@ def main():
 
     print('\nAnd... That\'s it! Here we go!')
 
-    content = request_with_pagination(updated_url, cookies, headers, tag_to_extract) if is_pagination == 'Y' or is_pagination == 'y' else single_request(updated_url, cookies, headers, tag_to_extract)
+    content = request_with_pagination(updated_url, cookies, headers, tag_to_extract, pagination) if len(pagination) > 0 else single_request(updated_url, cookies, headers, tag_to_extract)
 
     print('\nOf... Seems like everything went right. Let\'s end up with this.')
 
