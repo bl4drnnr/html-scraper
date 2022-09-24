@@ -7,21 +7,30 @@ from lxml import html
 import options
 import prints
 
-ALLOWED_FLAGS = ['--help', '-h', '-u', '--url', '-s', '--start']
-
 
 def get_input_args():
+    flags = sys.argv[1:]
+    short_flags = 'hsou'
+    long_flags = ['help', 'start', 'output=', 'url=']
+
     try:
-        opts, args = getopt.getopt(sys.argv[1:], "ho:v", ["help", "output="])
+        opts, args = getopt.getopt(flags, short_flags, long_flags)
 
         output = ''
+        start_url = ''
         for o, a in opts:
-            if o in ("-h", "--help"):
+            if o in ('-h', '--help'):
                 prints.print_help()
-            elif o in ("-h", "--output"):
-                output = o
+            elif o in ('-o', '--output'):
+                output = a
+            elif o in ('-u', '--url'):
+                start_url = a
+            elif o in ('-s', '--start'):
+                main()
             else:
                 prints.print_flags_error()
+
+        main(start_url, output)
     except getopt.GetoptError:
         prints.print_flags_error()
 
@@ -148,10 +157,10 @@ def set_option(option, url=''):
         return values
 
 
-def main(start_url=''):
+def main(start_url='', output=''):
     prints.print_input()
 
-    if len(start_url) != 0:
+    if len(start_url) == 0:
         url = input('First of all, provide me with url of page to scrap: ')
     else:
         url = start_url
@@ -187,7 +196,11 @@ def main(start_url=''):
     save_to_file = input('Save result to file? [Y/N]: ')
     if save_to_file == 'Y' or save_to_file == 'y':
         try:
-            file_name = input('Please, provide file name: ')
+            if len(output) != 0:
+                file_name = output
+            else:
+                file_name = input('Please, provide file name: ')
+
             final_content = ''
 
             f = open(f'{file_name}.txt', 'w')
@@ -208,7 +221,7 @@ def main(start_url=''):
 
 
 if __name__ == '__main__':
-    if len(sys.argv) == 0:
+    if len(sys.argv[1:]) == 0:
         main()
     else:
         get_input_args()
