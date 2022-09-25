@@ -1,159 +1,8 @@
-import getopt
 import sys
 
-import requests
-from lxml import html
 from termcolor import colored
 
-import options
-import prints
-
-
-def get_input_args():
-    flags = sys.argv[1:]
-    short_flags = 'ho:u:'
-    long_flags = ['help', 'output=', 'url=']
-
-    try:
-        opts, args = getopt.getopt(flags, short_flags, long_flags)
-
-        output = ''
-        start_url = ''
-        for o, a in opts:
-            if o in ('-h', '--help'):
-                prints.print_help()
-            elif o in ('-o', '--output'):
-                output = a
-            elif o in ('-u', '--url'):
-                start_url = a
-            else:
-                prints.print_flags_error()
-
-        main(start_url, output)
-    except getopt.GetoptError:
-        prints.print_flags_error()
-
-
-def set_pagination(url):
-    is_pagination = input('Is there any pagination in case if you want to get data from a couple of pages, not only one? [Y/N]: ')
-    provided_pagination = ''
-    quantity_of_pages = 0
-
-    if is_pagination == 'Y' or is_pagination == 'y':
-        quantity_of_pages = input('\nWell, what about quantity of pages?: ')
-
-        try:
-            int(quantity_of_pages)
-        except (Exception,):
-            print(colored('Nah... Doesn\'t seem to be number...', 'red', attrs=['reverse']))
-
-        pagination_already_provided = input('Were pagination already provided in URL params or as route? [Y/N]: ')
-
-        if pagination_already_provided == 'Y' or pagination_already_provided == 'y':
-            url_param_or_route = input('Is it URL param (example: https://example.com?page=4) or part or route (example: https://example.com/4/)? (1/2): ')
-            if url_param_or_route == '1':
-                provided_pagination = input('Provide pagination\'s key and value in the same way (and same value) as you did it providing it as param, for example - page=4: ')
-                if provided_pagination not in url:
-                    print(colored('\nWell... Probably you provided something wrong...', 'red', attrs=['reverse']))
-                    exit()
-            elif url_param_or_route == '2':
-                provided_pagination = input('Set the place of this pagination (example for https://example.com/4/, you would provide /4/): ')
-                if len(provided_pagination) != 3 or provided_pagination[0] != '/' or provided_pagination[-1] != '/' or provided_pagination[1] not in '0123456789':
-                    print(colored('\nWrong format! Please, try again!', 'red', attrs=['reverse']))
-                    exit()
-            else:
-                print(colored('\nNah... Doesn\'t seem to be right answer...', 'red', attrs=['reverse']))
-                exit()
-        else:
-            print('\nWell, then you should provide it in URL route.')
-            print('It could be URL param (example: https://example.com?page=4) or part or route (example: https://example.com/4/)')
-            exit()
-
-    return {
-        'provided_pagination': provided_pagination,
-        'quantity_of_pages': int(quantity_of_pages)
-    }
-
-
-def single_request(url, cookies, headers, tag_to_extract):
-    try:
-        print(colored('Sending request to {}'.format(url), 'blue'))
-        page = requests.get(url, cookies=cookies, headers=headers)
-        tree = html.fromstring(page.content)
-        return tree.xpath('//{}/text()'.format(tag_to_extract))
-    except Exception as e:
-        raise Exception(e)
-
-
-def request_with_pagination(url, cookies, headers, tag_to_extract, pagination):
-    result = []
-    try:
-        split_url = url.split(pagination['provided_pagination'])
-        for i in range(1, pagination['quantity_of_pages'] + 1):
-            if '=' in pagination['provided_pagination']:
-                updated_url = split_url[0] + pagination['provided_pagination'].split('=')[0] + '=' + str(i) + split_url[1]
-            else:
-                updated_url = split_url[0] + f'/{str(i)}/' + split_url[1]
-            print(colored('Sending request to {}'.format(updated_url), 'blue'))
-            page = requests.get(updated_url, cookies=cookies, headers=headers)
-            tree = html.fromstring(page.content)
-            tree_content = tree.xpath('//{}/text()'.format(tag_to_extract))
-
-            for item in tree_content:
-                result.append(item)
-    except Exception as e:
-        raise Exception(e)
-
-    return result
-
-
-def set_option(option, url=''):
-    values = {}
-    texts = options.set_option_type(option)
-    set_option_choose = input(texts['set'])
-
-    if set_option_choose == 'Y' or set_option_choose == 'y':
-        quantity_option = texts['quantity']
-        quantity = input(quantity_option)
-        print()
-
-        try:
-            int(quantity)
-        except (Exception,):
-            print(colored('Nah... Doesn\'t seem to be number...', 'red', attrs=['reverse']))
-
-        items = []
-        print(texts['format'])
-        for i in range(0, int(quantity)):
-            provided_value = input('Key and value: ')
-
-            if '=' not in provided_value or provided_value[0] == '=' or provided_value[-1] == '':
-                print(colored('\nWrong format', 'red', attrs=['reverse']))
-                exit()
-
-            items.append(provided_value)
-
-        if option != 'params':
-            if len(items) > 0:
-
-                for value in items:
-                    values[value.split('=')[0]] = value.split('=')[1]
-        else:
-            if url[-1] == '/':
-                url = url[:-1]
-
-            for i, param in enumerate(items):
-                if i == 0:
-                    url += '?{}={}'.format(param.split('=')[0], param.split('=')[1])
-                else:
-                    url += '&{}={}'.format(param.split('=')[0], param.split('=')[1])
-
-            return url
-
-    if option == 'params':
-        return url
-    else:
-        return values
+from modules import options, prints, request, pagination, args
 
 
 def main(start_url='', output=''):
@@ -170,10 +19,10 @@ def main(start_url='', output=''):
 
     print(colored('\nOkay, here we go with options!', 'yellow', attrs=['reverse']))
 
-    updated_url = set_option('params', url)
-    cookies = set_option('cookies')
-    headers = set_option('headers')
-    pagination = set_pagination(url)
+    updated_url = options.set_option('params', url)
+    cookies = options.set_option('cookies')
+    headers = options.set_option('headers')
+    pages = pagination.set_pagination(url)
 
     prints.print_format_request()
 
@@ -181,7 +30,7 @@ def main(start_url='', output=''):
 
     print(colored('\nAnd... That\'s it! Here we go!', 'yellow', attrs=['reverse']))
 
-    content = request_with_pagination(updated_url, cookies, headers, tag_to_extract, pagination) if len(pagination['provided_pagination']) > 0 else single_request(updated_url, cookies, headers, tag_to_extract)
+    content = request.request_with_pagination(updated_url, cookies, headers, tag_to_extract, pages) if len(pages['provided_pagination']) > 0 else request.single_request(updated_url, cookies, headers, tag_to_extract)
 
     print(colored('\nOf... Seems like everything went right. Let\'s end up with this.', 'yellow', attrs=['reverse']))
 
@@ -220,8 +69,9 @@ def main(start_url='', output=''):
 
 
 if __name__ == '__main__':
-    # TODO Color text
     if len(sys.argv[1:]) == 0:
         main()
     else:
-        get_input_args()
+        ops = args.get_input_args()
+        main(ops['start_url'], ops['output'])
+
