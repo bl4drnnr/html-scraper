@@ -2,15 +2,15 @@ import sys
 
 from termcolor import colored
 
-import pagination
-import request
-import prints
-import options
-import args
+from modules.prints import print_input, print_format_request
+from modules.options import set_option
+from modules.pagination import set_pagination
+from modules.args import get_input_args
+from modules.request import request_with_pagination, single_request
 
 
 def main(start_url='', output=''):
-    prints.print_input()
+    print_input()
 
     if len(start_url) == 0:
         url = input('First of all, provide me with url of page to scrap: ')
@@ -23,18 +23,18 @@ def main(start_url='', output=''):
 
     print(colored('\nOkay, here we go with options!', 'yellow', attrs=['reverse']))
 
-    updated_url = options.set_option('params', url)
-    cookies = options.set_option('cookies')
-    headers = options.set_option('headers')
-    pages = pagination.set_pagination(url)
+    updated_url = set_option('params', url)
+    cookies = set_option('cookies')
+    headers = set_option('headers')
+    pages = set_pagination(url)
 
-    prints.print_format_request()
+    print_format_request()
 
     tag_to_extract = input('So, what about tag to extract?: ')
 
     print(colored('\nAnd... That\'s it! Here we go!', 'yellow', attrs=['reverse']))
 
-    content = request.request_with_pagination(updated_url, cookies, headers, tag_to_extract, pages) if len(pages['provided_pagination']) > 0 else request.single_request(updated_url, cookies, headers, tag_to_extract)
+    content = request_with_pagination(updated_url, cookies, headers, tag_to_extract, pages) if len(pages['provided_pagination']) > 0 else single_request(updated_url, cookies, headers, tag_to_extract)
 
     print(colored('\nOf... Seems like everything went right. Let\'s end up with this.', 'yellow', attrs=['reverse']))
 
@@ -76,6 +76,6 @@ if __name__ == '__main__':
     if len(sys.argv[1:]) == 0:
         main()
     else:
-        ops = args.get_input_args()
+        ops = get_input_args()
         main(ops['start_url'], ops['output'])
 

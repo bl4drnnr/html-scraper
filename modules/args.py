@@ -1,7 +1,8 @@
 import getopt
 import sys
-import prints
-import errors
+
+from modules.prints import print_help
+from modules.errors import print_flags_error
 
 
 def get_input_args():
@@ -16,17 +17,17 @@ def get_input_args():
         start_url = ''
         for o, a in opts:
             if o in ('-h', '--help'):
-                prints.print_help()
+                print_help()
             elif o in ('-o', '--output'):
                 output = a
             elif o in ('-u', '--url'):
                 start_url = a
             else:
-                errors.print_flags_error()
+                print_flags_error()
 
         return {
             'start_url': start_url,
             'output': output
         }
     except getopt.GetoptError:
-        errors.print_flags_error()
+        print_flags_error()
