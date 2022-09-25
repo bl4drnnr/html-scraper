@@ -1,6 +1,7 @@
 import getopt
 import sys
 import prints
+import errors
 
 
 def get_input_args():
@@ -21,11 +22,11 @@ def get_input_args():
             elif o in ('-u', '--url'):
                 start_url = a
             else:
-                prints.print_flags_error()
+                errors.print_flags_error()
 
         return {
             'start_url': start_url,
             'output': output
         }
     except getopt.GetoptError:
-        prints.print_flags_error()
+        errors.print_flags_error()

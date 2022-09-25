@@ -31,15 +31,3 @@ def print_help():
     print('-u, --url\t\tPass URL of page of page to scrap. Example: -u https://example.com or --url=https://example.com')
     print('-o, --output\t\tWrite result in file. Example: -u output.txt or --output=output.txt')
     exit()
-
-
-def print_flags_error():
-    print(colored('Wrong flag!', 'red', attrs=['reverse']))
-    print(colored('Please, check documentation (-h, --help) in order to check all available flags.', 'red', attrs=['reverse']))
-    exit(2)
-
-
-def only_one_flag_allowed():
-    print(colored('Only one flag is allowed!', 'red', attrs=['reverse']))
-    print(colored('Please, check documentation (-h, --help) in order to check all available flags.', 'red', attrs=['reverse']))
-    exit(2)
