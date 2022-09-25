@@ -2,7 +2,11 @@ import sys
 
 from termcolor import colored
 
-from modules import options, prints, request, pagination, args
+import pagination
+import request
+import prints
+import options
+import args
 
 
 def main(start_url='', output=''):
