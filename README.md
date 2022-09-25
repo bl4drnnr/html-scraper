@@ -7,6 +7,8 @@
 \_| |_/ \_/ \_|  |_/\_____/    \____/ \____/\_| \_\_| |_/\_|   \____/\_| \_|
 ```
 
+---
+
 **HTML-Scraper** - is simple `Python` shell script that allows user to scrap `HTML` page and extract data.
 
 Script also allows to provide cookie or headers if needed (for authorization, for example).
